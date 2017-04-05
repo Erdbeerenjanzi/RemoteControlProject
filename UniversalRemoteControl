@@ -1,0 +1,159 @@
+
+
+
+
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+//Uses RC-5 control to emulate a remote control
+class RemoteControl
+{
+  public:
+     int i_pin;
+     enum commands{TV_ON=1, TV_OFF=0};
+
+    struct frame
+    {
+      char data[14];
+    };
+     
+     RemoteControl()
+     {
+        pinMode(5, OUTPUT); // Default output pin
+        i_pin = 5;
+     }
+        RemoteControl(int pin)
+     {
+        pinMode(pin,OUTPUT);
+        i_pin = pin;
+     }
+     ~RemoteControl();
+
+    void send_code(char c_bitdata[], unsigned int ui_length)
+    {
+      char* c_mandata;
+      
+      c_mandata = convert_bit_to_manchester(c_bitdata, ui_length);
+
+      for(int i=0; i < 2*ui_length; i++)
+      { 
+        if(c_mandata[i] == 1)
+        {
+          for(int j=0; j<34; j++)
+          {
+            digitalWrite(i_pin, HIGH);
+            delayMicroseconds(13);
+            digitalWrite(i_pin, LOW);
+            delayMicroseconds(13);
+          }
+        }
+        else
+        {
+          digitalWrite(i_pin, LOW);
+          delayMicroseconds(889);
+        }
+      }
+
+      free(c_mandata);
+    }
+
+    void send_code(frame* frame_data)
+    {
+      char* c_mandata;
+      const unsigned int ui_length = 14;
+      c_mandata = convert_bit_to_manchester(frame_data->data, ui_length);
+
+      for(int i=0; i < 2*ui_length; i++)
+      { 
+        if(c_mandata[i] == 1)
+        {
+          for(int j=0; j<34; j++)
+          {
+            digitalWrite(i_pin, HIGH);
+            delayMicroseconds(13);
+            digitalWrite(i_pin, LOW);
+            delayMicroseconds(13);
+          }
+        }
+        else
+        {
+          digitalWrite(i_pin, LOW);
+          delayMicroseconds(889);
+        }
+      }
+
+      free(c_mandata);
+    }
+
+    char* convert_bit_to_manchester(char c_bitdata[], unsigned int ui_length)
+    {
+     char* c_mandata; 
+     c_mandata = malloc(sizeof(char)*ui_length*2);
+
+    // G.E. Thomas
+     for(int i=0; i<ui_length; i++)
+     {
+     c_mandata[2*i] = c_bitdata[i];
+     c_mandata[2*1+1] = 1-c_bitdata[i];
+     }
+
+     return c_mandata;
+    }
+
+    static frame get_command(int command)
+    {
+      frame data_frame;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+
+      data_frame.data[0]=1;
+      data_frame.data[0]=0;
+      return data_frame;
+    }
+  
+   /* frame* convert_bit_to_manchester(frame* data)
+    {
+     const unsigned int ui_length = 14;
+     char* c_mandata; 
+     c_mandat = malloc(sizeof(char)*2*ui_length);
+
+    // G.E. Thomas
+     for(int i=0; i<ui_length; i++)
+     {
+     c_mandata[2*i] = c_bitdata[i];
+     c_mandata[2*1+1] = 1-c_bitdata[i];
+     }
+
+     return c_mandata;
+    }*/
+
+    
+     
+};
+
